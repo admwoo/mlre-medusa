@@ -7,6 +7,10 @@ import pandas as pd
 
 
 def display_result_single(args):
+    pd.set_option('display.max_colwidth', None)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.width', None)
+    
     if args.input_file is None:
         input_file = (
             f"data/{args.bench_name}/model_judgment/{args.judge_model}_single.jsonl"
@@ -37,6 +41,10 @@ def display_result_single(args):
 
 
 def display_result_pairwise(args):
+    pd.set_option('display.max_colwidth', None)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.width', None)
+    
     if args.input_file is None:
         input_file = (
             f"data/{args.bench_name}/model_judgment/{args.judge_model}_pair.jsonl"
