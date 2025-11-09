@@ -54,4 +54,4 @@ python gen_judgement.py --model-list medusa-vicuna-7b-v1.3-0-temperature-0.0-pos
 
 python show_result.py --judge-model gpt-3.5-turbo
 
-python calculate_tokens_per_second.py mt_bench/model_answer/medusa-vicuna-7b-v1.3-0-temperature-0.0-posterior_threshold-0.09-posterior_alpha-0.3-top_p-0.8-sampling-typical-fast-False-baseline.jsonl
+python calculate_tokens_per_second.py data/mt_bench/model_answer/medusa-vicuna-7b-v1.3-0-temperature-0.0-posterior_threshold-0.09-posterior_alpha-0.3-top_p-0.8-sampling-typical-fast-False-baseline.jsonl
