@@ -127,6 +127,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+medusa-venv
 
 # Spyder project settings
 .spyderproject
@@ -175,3 +176,4 @@ llm_judge/data/mt_bench_test
 llm_judge/data/mt_bench_test_rs
 data
 medusa/eval/*.sh
+.python-version

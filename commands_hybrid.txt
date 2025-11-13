@@ -1,0 +1,95 @@
+train_hybrid.py
+Trains hybrid model with configurable Medusa and Hydra heads
+(Base model weights are frozen, only heads are trained)
+
+# Configuration 1: Balanced (2 Medusa + 2 Hydra)
+python -m medusa.train.train_hybrid \
+  --model_name_or_path lmsys/vicuna-7b-v1.3 \
+  --data_path "./ShareGPT_V4.3_subset.json" \
+  --output_dir "./output_hybrid_2m2h" \
+  --num_train_epochs 1 \
+  --per_device_train_batch_size 8 \
+  --gradient_accumulation_steps 4 \
+  --learning_rate 1e-3 \
+  --model_max_length 2048 \
+  --bf16 True \
+  --head_sequence "medusa,medusa,hydra,hydra" \
+  --medusa_num_layers 1 \
+  --hydra_num_layers 4 \
+  --medusa_loss_weight 1.0 \
+  --hydra_loss_weight 1.0 \
+  --lm_loss_weight 1.0 \
+  --teacher_loss_weight 0.5 \
+  --reconstruction_loss_weight 0.1
+
+# Configuration 2: Hydra-Heavy (1 Medusa + 3 Hydra)
+python -m medusa.train.train_hybrid \
+  --model_name_or_path lmsys/vicuna-7b-v1.3 \
+  --data_path "./ShareGPT_V4.3_subset.json" \
+  --output_dir "./output_hybrid_1m3h" \
+  --num_train_epochs 1 \
+  --per_device_train_batch_size 8 \
+  --gradient_accumulation_steps 4 \
+  --learning_rate 1e-3 \
+  --model_max_length 2048 \
+  --bf16 True \
+  --head_sequence "medusa,hydra,hydra,hydra" \
+  --medusa_num_layers 1 \
+  --hydra_num_layers 4 \
+  --medusa_loss_weight 1.0 \
+  --hydra_loss_weight 1.0 \
+  --lm_loss_weight 1.0 \
+  --teacher_loss_weight 0.5 \
+  --reconstruction_loss_weight 0.1
+
+# Configuration 3: Pure Medusa (4 heads baseline)
+python -m medusa.train.train_hybrid \
+  --model_name_or_path lmsys/vicuna-7b-v1.3 \
+  --data_path "./ShareGPT_V4.3_subset.json" \
+  --output_dir "./output_hybrid_pure_medusa" \
+  --num_train_epochs 1 \
+  --per_device_train_batch_size 8 \
+  --gradient_accumulation_steps 4 \
+  --learning_rate 1e-3 \
+  --model_max_length 2048 \
+  --bf16 True \
+  --head_sequence "medusa,medusa,medusa,medusa" \
+  --medusa_num_layers 1 \
+  --medusa_loss_weight 1.0
+
+# Configuration 4: Pure Hydra (4 heads baseline)
+python -m medusa.train.train_hybrid \
+  --model_name_or_path lmsys/vicuna-7b-v1.3 \
+  --data_path "./ShareGPT_V4.3_subset.json" \
+  --output_dir "./output_hybrid_pure_hydra" \
+  --num_train_epochs 1 \
+  --per_device_train_batch_size 8 \
+  --gradient_accumulation_steps 4 \
+  --learning_rate 1e-3 \
+  --model_max_length 2048 \
+  --bf16 True \
+  --head_sequence "hydra,hydra,hydra,hydra" \
+  --medusa_num_layers 1 \
+  --hydra_num_layers 4 \
+  --medusa_loss_weight 1.0 \
+  --hydra_loss_weight 1.0 \
+  --lm_loss_weight 1.0 \
+  --teacher_loss_weight 0.5 \
+  --reconstruction_loss_weight 0.1
+
+
+hybrid_model_example.py
+Interactive example to test hybrid model loading and forward pass
+
+python medusa/model/hybrid_model_example.py
+
+
+Notes:
+- All training uses single GPU by default (python -m)
+- For multi-GPU, use: torchrun --nproc_per_node=N medusa/train/train_hybrid.py [args]
+- Base model is always frozen (only heads are trained)
+- Output directories contain: config.json, hybrid_heads.pt, trainer_state.json
+- Default batch size: 8 per device, gradient accumulation: 4 (effective batch size: 32)
+- Loss weights can be tuned based on your task
+- Teacher forcing is used during training (ground truth labels)
+- Inference uses predicted tokens (autoregressive)
