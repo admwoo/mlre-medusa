@@ -310,19 +310,43 @@ def preprocess(
     Preprocess conversation data and tokenize it.
 
     Args:
-        sources: List of conversation sources
+        sources: List of conversation sources (ShareGPT format with "conversations" key)
         tokenizer: Tokenizer for processing
 
     Returns:
         Dict with input_ids, labels, attention_mask
     """
+    # Get conversation template for Vicuna
+    conv_template = get_conversation_template("vicuna")
+
     conversations = []
     prompts = []
 
-    for i, conversation in enumerate(sources):
-        prompt = tokenizer.apply_chat_template(conversation, tokenize=False)
+    for i, source in enumerate(sources):
+        # Handle ShareGPT format: source has "conversations" key with list of turns
+        if "conversations" in source:
+            conversation_turns = source["conversations"]
+        else:
+            conversation_turns = source
+
+        # Build conversation using fastchat template
+        conv = conv_template.copy()
+
+        for turn in conversation_turns:
+            # Convert ShareGPT format ("from": "human"/"gpt", "value": text)
+            # to standard format
+            role = turn.get("from", turn.get("role", ""))
+            content = turn.get("value", turn.get("content", ""))
+
+            if role in ["human", "user"]:
+                conv.append_message(conv.roles[0], content)
+            elif role in ["gpt", "assistant"]:
+                conv.append_message(conv.roles[1], content)
+
+        # Get the formatted prompt
+        prompt = conv.get_prompt()
         prompts.append(prompt)
-        conversations.append(conversation)
+        conversations.append(conversation_turns)
 
     # Tokenize
     encoding = tokenizer(
@@ -338,18 +362,25 @@ def preprocess(
     input_ids = encoding.input_ids
 
     # Mask targets - only compute loss on assistant outputs
-    for conv_index, (conversation, target, prompt) in enumerate(zip(conversations, targets, prompts)):
-        for turn in conversation:
-            if turn["role"] == "assistant":
-                content = turn["content"]
-                # Strip necessary because chat templates do the same
-                start = prompt.index(content.strip())
-                stop = start + len(content)
-                indices = []
-                for tok_index, (tok_start, tok_stop) in enumerate(encoding.offset_mapping[conv_index]):
-                    if tok_stop >= start and tok_start < stop:
-                        indices.append(tok_index)
-                target[indices] = encoding.input_ids[conv_index][indices]
+    for conv_index, (conversation_turns, target, prompt) in enumerate(zip(conversations, targets, prompts)):
+        for turn in conversation_turns:
+            role = turn.get("from", turn.get("role", ""))
+            content = turn.get("value", turn.get("content", ""))
+
+            if role in ["gpt", "assistant"]:
+                # Find where this assistant response appears in the prompt
+                try:
+                    start = prompt.index(content.strip())
+                    stop = start + len(content)
+                    indices = []
+                    for tok_index, (tok_start, tok_stop) in enumerate(encoding.offset_mapping[conv_index]):
+                        if tok_stop > start and tok_start < stop:
+                            indices.append(tok_index)
+                    if indices:
+                        target[indices] = encoding.input_ids[conv_index][indices]
+                except ValueError:
+                    # Content not found in prompt, skip
+                    pass
 
     return dict(
         input_ids=input_ids,
