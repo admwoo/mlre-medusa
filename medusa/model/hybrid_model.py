@@ -449,6 +449,15 @@ class HybridModel:
         try:
             config = HybridConfig.from_pretrained(pretrained_model_name_or_path)
             print(f"Loaded existing hybrid config from {pretrained_model_name_or_path}")
+
+            # Even when loading existing config, we need to ensure base model attributes are present
+            base_model_path = config.base_model_name_or_path if hasattr(config, 'base_model_name_or_path') else pretrained_model_name_or_path
+            base_config = AutoConfig.from_pretrained(base_model_path)
+
+            # Merge base config attributes that are missing in hybrid config
+            for key in vars(base_config):
+                if not hasattr(config, key):
+                    setattr(config, key, getattr(base_config, key))
         except:
             # Create new hybrid config from base model
             base_config = AutoConfig.from_pretrained(pretrained_model_name_or_path)
