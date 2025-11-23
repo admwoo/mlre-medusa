@@ -205,7 +205,9 @@ def get_model_answers(
             wall_time = []
             num_tokens = []
             num_generated_tokens = 0
+            num_decoding_array = []
             for j in range(len(question["turns"])):
+                num_decoding_steps = 0
                 qs = question["turns"][j]
                 conv.append_message(conv.roles[0], qs)
                 conv.append_message(conv.roles[1], None)
@@ -233,6 +235,7 @@ def get_model_answers(
                         fast=fast,
                     ):
                         output_text = step["text"]
+                        num_decoding_steps += 1
                     
                     torch.cuda.synchronize()
                     total_time = time.time() - start_time
@@ -263,9 +266,10 @@ def get_model_answers(
                 turns.append(output)
                 wall_time.append(total_time)
                 num_tokens.append(num_generated_tokens)
+                num_decoding_array.append(num_decoding_steps)
                 conv.messages[-1][-1] = output
             # torch.cuda.empty_cache()
-            choices.append({"index": i, "turns": turns, "wall_time": wall_time, "num_tokens": num_tokens})
+            choices.append({"index": i, "turns": turns, "wall_time": wall_time, "num_tokens": num_tokens, "num_decoding_steps": num_decoding_array})
 
         # Dump answers
         os.makedirs(os.path.dirname(answer_file), exist_ok=True)
