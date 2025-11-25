@@ -1,3 +1,6 @@
+See the Repository_Walkthrough.md file and the commands_list.md file to get information about how to use this repo for the purposes of the EECS 498 replication and extension project of the Medusa paper.
+
+
 <img src="assets/logo.png" alt="Medusa" width="100" align="left"><div align="center"><h1>&nbsp;Medusa: Simple Framework for Accelerating LLM Generation with Multiple Decoding Heads</h1></div>
 
 <p align="center">
