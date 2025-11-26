@@ -23,19 +23,22 @@ class MedusaConfig(PretrainedConfig):
     Configuration class for Medusa model.
 
     Args:
-        medusa_layer_config (List[int], optional): List where length = num heads, each value = num layers for that head. Default is [1, 1, 1, 1, 1].
+        medusa_num_heads (int, optional): Number of heads for the Medusa layer. Default is 2.
+        medusa_num_layers (int, optional): Number of Medusa layers. Default is 1.
         base_model_name_or_path (str, optional): The name or path of the base model. Default is "lmsys/vicuna-7b-v1.3".
         **kwargs: Additional keyword arguments to be passed to the parent class constructor.
     """
 
     def __init__(
         self,
-        medusa_layer_config=[1, 1, 1, 1, 1],
+        medusa_num_heads=5,
+        medusa_num_layers=1,
         base_model_name_or_path="lmsys/vicuna-7b-v1.3",
         **kwargs,
     ):
         super().__init__(**kwargs)
-        self.medusa_layer_config = medusa_layer_config
+        self.medusa_num_heads = medusa_num_heads
+        self.medusa_num_layers = medusa_num_layers
         self.base_model_name_or_path = base_model_name_or_path
 
 class ResBlock(nn.Module):
@@ -96,23 +99,23 @@ class MedusaModelABC(nn.Module):
         super().__init__(config)
         # For compatibility with the old APIs
 
-        medusa_layer_config = config.medusa_layer_config
-        medusa_num_heads = len(medusa_layer_config)
+        medusa_num_heads = config.medusa_num_heads
+        medusa_num_layers = config.medusa_num_layers
         base_model_name_or_path = config._name_or_path
         self.hidden_size = config.hidden_size
         self.vocab_size = config.vocab_size
         self.medusa = medusa_num_heads
-        self.medusa_layer_config = medusa_layer_config
+        self.medusa_num_layers = medusa_num_layers
         self.base_model_name_or_path = base_model_name_or_path
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_model_name_or_path)
         # Create a list of Medusa heads
         self.medusa_head = nn.ModuleList(
             [
                 nn.Sequential(
-                    *([ResBlock(self.hidden_size)] * medusa_layer_config[i]),
+                    *([ResBlock(self.hidden_size)] * medusa_num_layers),
                     nn.Linear(self.hidden_size, self.vocab_size, bias=False),
                 )
-                for i in range(medusa_num_heads)
+                for _ in range(medusa_num_heads)
             ]
         )
     # Add a link named base_model to self
@@ -138,8 +141,9 @@ class MedusaModelABC(nn.Module):
         except:
             config = MedusaConfig.from_pretrained(pretrained_model_name_or_path)
             base_model_config = AutoConfig.from_pretrained(config.base_model_name_or_path)
-            # Respect trained layer configuration from saved MedusaConfig
-            base_model_config.medusa_layer_config = getattr(config, "medusa_layer_config", [1, 1, 1, 1, 1])
+            # Respect trained head count from saved MedusaConfig
+            base_model_config.medusa_num_heads = getattr(config, "medusa_num_heads", 3)
+            base_model_config.medusa_num_layers = config.medusa_num_layers
             model = super().from_pretrained(
                 config.base_model_name_or_path,
                 *args,

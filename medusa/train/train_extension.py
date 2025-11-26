@@ -368,8 +368,6 @@ def train():
         scaling_factor = float(math.ceil(training_args.model_max_length / orig_ctx_len))
         config.rope_scaling = {"type": "linear", "factor": scaling_factor}
     config.use_cache = False
-    # Use eager attention implementation for compatibility with Medusa
-    config._attn_implementation = "eager"
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(
         model_args.model_name_or_path,
@@ -400,22 +398,22 @@ def train():
         config=config,
         cache_dir=training_args.cache_dir,
         torch_dtype=torch.bfloat16,
-        attn_implementation="eager",
     )
 
     # Freeze the base model
     for param in model.base_model.parameters():
         param.requires_grad = False
 
+    # Add medusa_layer_config to model config
+    model.config.medusa_layer_config = training_args.medusa_layer_config
+
     # Add Medusa heads
-    medusa_lm_head = MedusaModel(
-        model,
-        medusa_layer_config=training_args.medusa_layer_config,
-        base_model_name_or_path=model_args.model_name_or_path,
+    medusa_lm_head = MedusaModel.from_pretrained(
+        model_args.model_name_or_path,
     )
 
     # Format output dir
-    training_args.output_dir = f"{training_args.output_dir}_medusa_mlp_{model_args.model_name_or_path.split('/')[-1]}_medusa_{training_args.medusa_layer_config}_lr_{training_args.learning_rate}"
+    training_args.output_dir = f"{training_args.output_dir}_medusa_{model_args.model_name_or_path.split('/')[-1]}_config_{training_args.medusa_layer_config}_lr_{training_args.learning_rate}"
 
 
     # Load data
@@ -425,28 +423,14 @@ def train():
     medusa_config = MedusaConfig(
         medusa_layer_config=training_args.medusa_layer_config,
         base_model_name_or_path=model_args.model_name_or_path,
-        version="2"
     )
 
     # Save Medusa config
     medusa_config.save_pretrained(training_args.output_dir)
 
-    # Create data collator for proper batching
-    from transformers import DataCollatorForSeq2Seq
-    data_collator = DataCollatorForSeq2Seq(
-        tokenizer=tokenizer,
-        model=medusa_lm_head,
-        padding=True,
-        return_tensors="pt",
-    )
-
     # Start trainner
     trainer = CustomizedTrainer(
-        model=medusa_lm_head,
-        tokenizer=tokenizer,
-        args=training_args,
-        data_collator=data_collator,
-        **data_module
+        model=medusa_lm_head, tokenizer=tokenizer, args=training_args, **data_module
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
