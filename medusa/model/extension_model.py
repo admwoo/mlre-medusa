@@ -489,6 +489,44 @@ class MedusaModelMistral(MedusaModelABC, KVMistralForCausalLM):
 
 
 class MedusaModel():
+    def __new__(
+        cls,
+        base_model,
+        medusa_layer_config=[1, 1, 1, 1, 1],
+        base_model_name_or_path=None,
+    ):
+        """
+        Create a MedusaModel by wrapping a base model with Medusa heads.
+
+        Args:
+            base_model: The base language model to add Medusa heads to
+            medusa_layer_config: List of layer counts for each Medusa head
+            base_model_name_or_path: Path or name of the base model (optional)
+
+        Returns:
+            MedusaModelLlama or MedusaModelMistral instance
+        """
+        # Determine model type from base model
+        model_type = base_model.config.model_type
+
+        # Add medusa_layer_config to the base model's config
+        base_model.config.medusa_layer_config = medusa_layer_config
+
+        # Create the appropriate MedusaModel subclass
+        if model_type == "llama":
+            instance = object.__new__(MedusaModelLlama)
+            MedusaModelLlama.__init__(instance, base_model.config)
+        elif model_type == "mistral":
+            instance = object.__new__(MedusaModelMistral)
+            MedusaModelMistral.__init__(instance, base_model.config)
+        else:
+            raise ValueError(f"Model type {model_type} not supported. Only llama and mistral are supported.")
+
+        # Copy the base model's weights into the new instance
+        instance.load_state_dict(base_model.state_dict(), strict=False)
+
+        return instance
+
     @classmethod
     def from_pretrained(
         cls,
