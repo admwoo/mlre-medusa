@@ -431,9 +431,22 @@ def train():
     # Save Medusa config
     medusa_config.save_pretrained(training_args.output_dir)
 
+    # Create data collator for proper batching
+    from transformers import DataCollatorForSeq2Seq
+    data_collator = DataCollatorForSeq2Seq(
+        tokenizer=tokenizer,
+        model=medusa_lm_head,
+        padding=True,
+        return_tensors="pt",
+    )
+
     # Start trainner
     trainer = CustomizedTrainer(
-        model=medusa_lm_head, tokenizer=tokenizer, args=training_args, **data_module
+        model=medusa_lm_head,
+        tokenizer=tokenizer,
+        args=training_args,
+        data_collator=data_collator,
+        **data_module
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
