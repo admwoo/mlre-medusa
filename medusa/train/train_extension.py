@@ -368,6 +368,8 @@ def train():
         scaling_factor = float(math.ceil(training_args.model_max_length / orig_ctx_len))
         config.rope_scaling = {"type": "linear", "factor": scaling_factor}
     config.use_cache = False
+    # Use eager attention implementation for compatibility with Medusa
+    config._attn_implementation = "eager"
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(
         model_args.model_name_or_path,
@@ -398,6 +400,7 @@ def train():
         config=config,
         cache_dir=training_args.cache_dir,
         torch_dtype=torch.bfloat16,
+        attn_implementation="eager",
     )
 
     # Freeze the base model
