@@ -99,7 +99,7 @@ class MedusaModel(nn.Module):
         self.medusa_head = nn.ModuleList(
             [
                 nn.Sequential(
-                    *([ResBlock(self.hidden_size)] * medusa_layer_config),
+                    *([ResBlock(self.hidden_size)] * medusa_layer_config[i]),
                     nn.Linear(self.hidden_size, self.vocab_size, bias=False),
                 )
                 for i in range(len(medusa_layer_config))
@@ -147,7 +147,7 @@ class MedusaModel(nn.Module):
 
         model = cls(
             base_model,
-            medusa_config.medusa_layer_config
+            medusa_config.medusa_layer_config,
             medusa_config.base_model_name_or_path,
         )
         medusa_head_path = os.path.join(medusa_head_name_or_path, "medusa_lm_head.pt")

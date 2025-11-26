@@ -129,7 +129,7 @@ class TrainingArguments(transformers.TrainingArguments):
         },
     )
     medusa_layer_config: List[int] = field(
-        default=[1],
+        default_factory=lambda: [1],
         metadata={"help": "Number of layers per each Medusa head."}
     )
 
@@ -407,7 +407,7 @@ def train():
     # Add Medusa heads
     medusa_lm_head = MedusaModel(
         model,
-        medusa_layer_config=training_args.medusa_layer_config
+        medusa_layer_config=training_args.medusa_layer_config,
         base_model_name_or_path=model_args.model_name_or_path,
     )
 
