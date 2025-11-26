@@ -99,10 +99,10 @@ class MedusaModel(nn.Module):
         self.medusa_head = nn.ModuleList(
             [
                 nn.Sequential(
-                    *([ResBlock(self.hidden_size)] * medusa_layer_config[i]),
+                    *[ResBlock(self.hidden_size) for _ in range(num_layers)],
                     nn.Linear(self.hidden_size, self.vocab_size, bias=False),
                 )
-                for i in range(len(medusa_layer_config))
+                for num_layers in medusa_layer_config
             ]
         )
 
