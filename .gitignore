@@ -156,6 +156,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+medusa-venv
 
 # Spyder project settings
 .spyderproject
@@ -220,3 +221,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+.python-version
