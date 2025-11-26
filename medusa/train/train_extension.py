@@ -129,8 +129,8 @@ class TrainingArguments(transformers.TrainingArguments):
         },
     )
     medusa_layer_config: List[int] = field(
-        default_factory=lambda: [1, 1, 1, 1, 1],
-        metadata={"help": "List of number of layers for each Medusa head"},
+        default=[1],
+        metadata={"help": "Number of layers per each Medusa head."}
     )
 
 
@@ -404,16 +404,15 @@ def train():
     for param in model.base_model.parameters():
         param.requires_grad = False
 
-    # Add medusa_layer_config to model config
-    model.config.medusa_layer_config = training_args.medusa_layer_config
-
     # Add Medusa heads
-    medusa_lm_head = MedusaModel.from_pretrained(
-        model_args.model_name_or_path,
+    medusa_lm_head = MedusaModel(
+        model,
+        medusa_layer_config=training_args.medusa_layer_config
+        base_model_name_or_path=model_args.model_name_or_path,
     )
 
     # Format output dir
-    training_args.output_dir = f"{training_args.output_dir}_medusa_{model_args.model_name_or_path.split('/')[-1]}_config_{training_args.medusa_layer_config}_lr_{training_args.learning_rate}"
+    training_args.output_dir = f"{training_args.output_dir}_medusa_mlp_{model_args.model_name_or_path.split('/')[-1]}_medusa_{training_args.medusa_layer_config}_lr_{training_args.learning_rate}"
 
 
     # Load data
@@ -423,6 +422,7 @@ def train():
     medusa_config = MedusaConfig(
         medusa_layer_config=training_args.medusa_layer_config,
         base_model_name_or_path=model_args.model_name_or_path,
+        version="2"
     )
 
     # Save Medusa config
