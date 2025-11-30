@@ -112,7 +112,7 @@ python gen_judgement.py --model-list medusa-vicuna-7b-v1.3-0-temperature-0.0-pos
 # Show Judgement Command
 Use this to get output of quality results based on the generated judgement
 
-Execute this command in the llm_judge directory
+Execute this command in the llm_judge directory after generating the judgement
 
 ```
 python show_result2.py --judge-model gpt-3.5-turbo
@@ -120,7 +120,9 @@ python show_result2.py --judge-model gpt-3.5-turbo
 
 # Output Metrics of Performance on MT-Bench
 
-Execute this command in the llm_judge directory where the quality flags are optional and are obtained from the show_result2.py script
+Execute this command in the llm_judge directory after running gen_model_answer to create the .jsonl file. 
+
+The quality flags are optional and the values to use are obtained from the show_result2.py script.
 
 ```
 python calculate_tokens_per_second2.py data/mt_bench/model_answer/medusa-vicuna-7b-v1.3-0-temperature-0.0-posterior_threshold-0.09-posterior_alpha-0.3-top_p-0.8-sampling-typical-fast-False.jsonl \
