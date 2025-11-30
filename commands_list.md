@@ -2,7 +2,9 @@
 
 ## How To Use the Training Commands
 --data_path should be the file path of where the ShareGPT dataset is located
+
 --output_dir will denote the name of the directory in which the trained weights are located
+
 --medusa_num_heads denotes the number of heads that the medusa architecture will use 
 
 ## Regular Training
@@ -67,6 +69,13 @@ python gen_model_answer_medusa_new_2_mlp.py --model-path "/scratch/eecs498f25s00
   --model-id medusa-vicuna-7b-v1.3-0
 ```
 
+## MLP Extensible Generation
+
+```
+python gen_model_extend_mlp.py --model-path "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/nrgamota/Medusa/mlp_256_128_output_medusa_mlp_extn_vicuna-7b-v1.3_medusa_5_lr_0.001_layers_1" \
+  --model-id medusa-vicuna-7b-v1.3-0
+```
+
 # LLM Generate Judgement Command
 It is necessary to set a valid API key through OPENAI
 ```
@@ -100,7 +109,7 @@ python show_result2.py --judge-model gpt-3.5-turbo
 
 # Output Metrics of Performance on MT-Bench
 
-Execute this command in the llm_judge directory
+Execute this command in the llm_judge directory where the quality flags are optional and are obtained from the show_result2.py script
 
 ```
 python calculate_tokens_per_second2.py data/mt_bench/model_answer/medusa-vicuna-7b-v1.3-0-temperature-0.0-posterior_threshold-0.09-posterior_alpha-0.3-top_p-0.8-sampling-typical-fast-False.jsonl \
