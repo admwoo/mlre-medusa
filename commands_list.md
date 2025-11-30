@@ -82,6 +82,11 @@ python gen_model_extend_mlp.py --model-path "/scratch/eecs498f25s006_class_root/
   --model-id medusa-vicuna-7b-v1.3-0
 ```
 
+```
+python gen_model_extend_mlp.py --model-path Nickg22/MLP-Extensible-Extension \
+  --model-id medusa-vicuna-7b-v1.3-0
+```
+
 # LLM Generate Judgement Command
 It is necessary to set a valid API key through OPENAI
 ```
