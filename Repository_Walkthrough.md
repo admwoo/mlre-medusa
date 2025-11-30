@@ -15,6 +15,8 @@ cd FastChat
 pip install -e ".[llm_judge]"
 ```
 
+Then `pip install anthropic`
+
 # Obtaining ShareGPT dataset
 4. Obtain ShareGPT dataset
 
