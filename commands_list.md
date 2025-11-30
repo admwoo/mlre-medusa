@@ -63,6 +63,12 @@ python gen_model_answer_medusa_new_2.py --model-path "/scratch/eecs498f25s006_cl
   --model-id medusa-vicuna-7b-v1.3-0
 ```
 
+You can use the replication weights posted on Huggingface
+
+```
+python gen_model_answer_medusa_new_2.py --model-path Nickg22/Medusa-Replication --model-id medusa-vicuna-7b-v1.3-0
+```
+
 ## MLP Generation
 ```
 python gen_model_answer_medusa_new_2_mlp.py --model-path "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/nrgamota/Medusa/mlp_256_128_output_medusa_mlp_extn_vicuna-7b-v1.3_medusa_5_lr_0.001_layers_1" \
