@@ -85,6 +85,11 @@ def main(args):
     save_path = os.path.join(args.save_dir, args.model_name + "_heads_accuracy.pt")
     torch.save(results, save_path)
 
+    # Print out the results of the get_accuracies for each head
+    for i in range(len(results)):
+        head_accuracy = results[i].float().mean().item()
+        print(f"Head {i+1} Accuracy: {head_accuracy:.4f}")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Medusa Model Evaluator")
 
