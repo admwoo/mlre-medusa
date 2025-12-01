@@ -34,7 +34,26 @@ python -m medusa.train.train_legacy_mlp \
   --model_max_length 2048 \
   --bf16 True \
   --medusa_num_heads 5 \
-  --medusa_num_layers 1
+  --medusa_num_layers 1 
+```
+
+## Extended Medusa Heads Training
+```
+python medusa/train/train_extension.py \
+  --data_path "/home/adamwoo/mlre-medusa/ShareGPT_Vicuna_unfiltered/ShareGPT_V4.3_unfiltered_cleaned_split.json" \
+  --medusa_layer_config 4 4 4 4 4 \
+  --model_name_or_path "lmsys/vicuna-7b-v1.3" \
+  --output_dir "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/adamwoo/output_custom/" \
+  --num_train_epochs 1 \
+  --per_device_train_batch_size 4 \
+  --gradient_accumulation_steps 4 \
+  --learning_rate 1e-3 \
+  --model_max_length 2048 \
+  --bf16 True \
+  --save_total_limit 3 \
+  --resume_from_checkpoint "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/adamwoo/output_custom/_medusa_mlp_vicuna-7b-v1.3_medusa_[4, 4, 4, 4, 4]_lr_0.001/checkpoint-2000"
+  
+  
 ```
 
 
@@ -64,6 +83,12 @@ python gen_model_answer_medusa_new_2.py --model-path "/scratch/eecs498f25s006_cl
 ## MLP Generation
 ```
 python gen_model_answer_medusa_new_2_mlp.py --model-path "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/nrgamota/Medusa/mlp_256_128_output_medusa_mlp_extn_vicuna-7b-v1.3_medusa_5_lr_0.001_layers_1" \
+  --model-id medusa-vicuna-7b-v1.3-0
+```
+
+## Extended Medusa Generation
+```
+python gen_model_answer_extension.py --model-path "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/adamwoo/output_custom/_medusa_mlp_vicuna-7b-v1.3_medusa_[4, 4, 4, 4, 4]_lr_0.001" \
   --model-id medusa-vicuna-7b-v1.3-0
 ```
 
@@ -103,7 +128,7 @@ python show_result2.py --judge-model gpt-3.5-turbo
 Execute this command in the llm_judge directory
 
 ```
-python calculate_tokens_per_second2.py data/mt_bench/model_answer/medusa-vicuna-7b-v1.3-0-temperature-0.0-posterior_threshold-0.09-posterior_alpha-0.3-top_p-0.8-sampling-typical-fast-False.jsonl \
+python calculate_tokens_per_second.py data/mt_bench/model_answer/medusa-vicuna-7b-v1.3-0-temperature-0.0-posterior_threshold-0.09-posterior_alpha-0.3-top_p-0.8-sampling-typical-fast-False.jsonl \
 --quality 6.71 \
 --quality_per_subject 4.25 7.325 8.7 4.85 4.65 7.76 8.83 7.89
 ```
@@ -123,4 +148,10 @@ Note that you need to install pygraphviz to utilize this command
 
 ```
 python gen_results.py --accuracy-path 'medusa-vicuna-7b-v1.3_heads_accuracy.pt' --output-path 'graph.jpg'
+```
+
+
+
+
+
 ```

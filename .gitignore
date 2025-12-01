@@ -224,3 +224,7 @@ __marimo__/
 
 .python-version
 ShareGPT_Vicuna_unfiltered
+
+wandb/
+output_custom/
+FastChat/

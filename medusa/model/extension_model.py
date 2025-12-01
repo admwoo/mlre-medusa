@@ -168,6 +168,7 @@ class MedusaModel(nn.Module):
         past_key_values=None,
         output_orig=False,
         position_ids=None,
+        medusa_forward=False,
     ):
         """Forward pass of the MedusaModel.
 
