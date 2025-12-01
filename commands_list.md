@@ -2,7 +2,9 @@
 
 ## How To Use the Training Commands
 --data_path should be the file path of where the ShareGPT dataset is located
+
 --output_dir will denote the name of the directory in which the trained weights are located
+
 --medusa_num_heads denotes the number of heads that the medusa architecture will use 
 
 ## Regular Training
@@ -80,6 +82,12 @@ python gen_model_answer_medusa_new_2.py --model-path "/scratch/eecs498f25s006_cl
   --model-id medusa-vicuna-7b-v1.3-0
 ```
 
+You can use the replication weights posted on Huggingface
+
+```
+python gen_model_answer_medusa_new_2.py --model-path Nickg22/Medusa-Replication --model-id medusa-vicuna-7b-v1.3-0
+```
+
 ## MLP Generation
 ```
 python gen_model_answer_medusa_new_2_mlp.py --model-path "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/nrgamota/Medusa/mlp_256_128_output_medusa_mlp_extn_vicuna-7b-v1.3_medusa_5_lr_0.001_layers_1" \
@@ -89,6 +97,17 @@ python gen_model_answer_medusa_new_2_mlp.py --model-path "/scratch/eecs498f25s00
 ## Extended Medusa Generation
 ```
 python gen_model_answer_extension.py --model-path "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/adamwoo/output_custom/_medusa_mlp_vicuna-7b-v1.3_medusa_[4, 4, 4, 4, 4]_lr_0.001" \
+  --model-id medusa-vicuna-7b-v1.3-0
+```
+## MLP Extensible Generation
+```
+python gen_model_extend_mlp.py --model-path "/scratch/eecs498f25s006_class_root/eecs498f25s006_class/nrgamota/Medusa/mlp_256_128_output_medusa_mlp_extn_vicuna-7b-v1.3_medusa_5_lr_0.001_layers_1" \
+  --model-id medusa-vicuna-7b-v1.3-0
+```
+
+Command using weights from Huggingface
+```
+python gen_model_extend_mlp.py --model-path Nickg22/MLP-Extensible-Extension \
   --model-id medusa-vicuna-7b-v1.3-0
 ```
 
@@ -117,7 +136,7 @@ python gen_judgement.py --model-list medusa-vicuna-7b-v1.3-0-temperature-0.0-pos
 # Show Judgement Command
 Use this to get output of quality results based on the generated judgement
 
-Execute this command in the llm_judge directory
+Execute this command in the llm_judge directory after generating the judgement
 
 ```
 python show_result2.py --judge-model gpt-3.5-turbo
@@ -125,7 +144,9 @@ python show_result2.py --judge-model gpt-3.5-turbo
 
 # Output Metrics of Performance on MT-Bench
 
-Execute this command in the llm_judge directory
+Execute this command in the llm_judge directory after running gen_model_answer to create the .jsonl file. 
+
+The quality flags are optional and the values to use are obtained from the show_result2.py script.
 
 ```
 python calculate_tokens_per_second.py data/mt_bench/model_answer/medusa-vicuna-7b-v1.3-0-temperature-0.0-posterior_threshold-0.09-posterior_alpha-0.3-top_p-0.8-sampling-typical-fast-False.jsonl \
