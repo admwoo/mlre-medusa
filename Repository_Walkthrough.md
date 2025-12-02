@@ -34,3 +34,7 @@ If you are in Greatlakes then run `module load cuda`
 Now you will be ready to execute the commands listed in command-list.md
 
 A suggestion for model answer generation would be to have a copy of the llm_judge directory for each model you are testing.
+
+# Miscenallous Sections
+- Unsuccessful Medusa-Hydra Hydra code can be found in medusa-hydra-hybrid-proposed-extension
+- An example of valid generated model answers can be found for the MLP extension in llm_judge_example_MLP_Extension
