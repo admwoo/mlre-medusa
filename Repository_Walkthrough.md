@@ -15,7 +15,7 @@ cd FastChat
 pip install -e ".[llm_judge]"
 ```
 
-Then `pip install anthropic, numpy, matplotlib`
+Then `pip install anthropic pandas matplotlib`
 
 # Obtaining ShareGPT dataset
 4. Obtain ShareGPT dataset
